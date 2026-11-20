@@ -1,1 +1,519 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11100d">
+  <title>عمالقة الأدب العربي — متحف رقمي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #11100d;
+      --ink-soft: #1b1914;
+      --gold: #c9a45c;
+      --gold-light: #e7ca8c;
+      --ivory: #f2ead8;
+      --muted: #b6aa91;
+      --line: rgba(201,164,92,.25);
+      --serif: "Amiri", Georgia, serif;
+      --sans: "IBM Plex Sans Arabic", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+    body {
+      margin: 0;
+      background: var(--ink);
+      color: var(--ivory);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .12;
+      z-index: 5;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    .container { width: min(1160px, calc(100% - 42px)); margin: auto; }
+    .gold { color: var(--gold-light); }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 12px;
+      color: var(--gold); font-size: .78rem; letter-spacing: .12em;
+    }
+    .eyebrow::before { content: ""; width: 35px; height: 1px; background: var(--gold); }
+    .section-title {
+      font: 700 clamp(2rem, 5vw, 3.6rem)/1.2 var(--serif);
+      margin: 14px 0;
+    }
+    .section-intro { color: var(--muted); max-width: 650px; line-height: 2; }
+
+    /* التنقل */
+    .nav {
+      position: fixed; z-index: 20; top: 0; right: 0; left: 0;
+      padding: 16px 0; transition: .3s ease;
+      border-bottom: 1px solid transparent;
+    }
+    .nav.scrolled {
+      background: rgba(17,16,13,.9); backdrop-filter: blur(16px);
+      border-color: var(--line);
+    }
+    .nav-inner { display:flex; align-items:center; justify-content:space-between; gap: 18px; }
+    .brand { font: 700 1.35rem var(--serif); color: var(--gold-light); white-space: nowrap; }
+    .nav-links { display:flex; align-items:center; gap: 25px; color: #e0d6c2; font-size: .9rem; }
+    .nav-links a { transition: color .2s; }
+    .nav-links a:hover { color: var(--gold-light); }
+    .menu-toggle {
+      display:none; color:var(--ivory); border:1px solid var(--line);
+      background:transparent; padding:8px 12px; border-radius:4px; cursor:pointer;
+    }
+
+    /* الواجهة */
+    .hero {
+      min-height: 100svh; position: relative; isolation: isolate;
+      display:grid; align-items:center; overflow:hidden;
+      background:
+        linear-gradient(90deg, rgba(13,12,10,.95) 2%, rgba(13,12,10,.72) 52%, rgba(13,12,10,.42)),
+        linear-gradient(0deg, var(--ink), transparent 35%),
+        url("https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=2200&q=85") center/cover;
+    }
+    .hero::before {
+      content:""; position:absolute; inset:0; z-index:-1;
+      background: radial-gradient(ellipse at 75% 43%, rgba(201,164,92,.2), transparent 40%);
+    }
+    .hero-content { padding-top: 70px; max-width: 790px; }
+    .hero h1 {
+      font: 700 clamp(3.5rem, 10vw, 8rem)/1.05 var(--serif);
+      margin: 22px 0 10px; letter-spacing: -.04em;
+      text-shadow: 0 8px 45px #000;
+    }
+    .hero-subtitle { font: 400 clamp(1.35rem, 3vw, 2rem) var(--serif); color: var(--gold-light); }
+    .hero p { color:#d0c6b4; max-width:590px; line-height:2; margin:24px 0 32px; }
+    .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
+    .button {
+      display:inline-flex; justify-content:center; align-items:center; gap:10px;
+      min-height:48px; padding: 11px 22px; border:1px solid var(--gold);
+      background:var(--gold); color:#17140e; cursor:pointer; transition:.25s;
+      font-weight:600;
+    }
+    .button:hover { background:var(--gold-light); transform:translateY(-2px); }
+    .button.ghost { background:transparent; color:var(--ivory); }
+    .button.ghost:hover { color:var(--gold-light); }
+    .hero-note { font-size:.78rem; color:#c3b9a7; margin-top:50px; }
+
+    /* زخرفة هندسية */
+    .ornament {
+      position:absolute; left:7%; top:24%; width:min(28vw,340px); aspect-ratio:1;
+      border:1px solid rgba(201,164,92,.3); transform:rotate(45deg);
+      pointer-events:none;
+    }
+    .ornament::before,.ornament::after {
+      content:""; position:absolute; inset:12%; border:1px solid rgba(201,164,92,.27);
+    }
+    .ornament::after { inset:25%; transform:rotate(45deg); }
+
+    /* نبذة */
+    .intro { padding:115px 0 95px; }
+    .intro-grid { display:grid; grid-template-columns:1.1fr .9fr; gap:70px; align-items:center; }
+    .intro-copy p { color:var(--muted); line-height:2.1; }
+    .quote-card {
+      padding:36px; border:1px solid var(--line);
+      background:linear-gradient(145deg, #201d17, #14130f);
+      position:relative;
+    }
+    .quote-card::before { content:"❝"; position:absolute; top:7px; right:20px; color:var(--gold); font:4rem var(--serif); opacity:.55; }
+    .quote-card p { font:1.6rem/1.8 var(--serif); color:var(--ivory); }
+    .quote-card small { color:var(--gold); }
+
+    /* الشخصيات */
+    .figures { padding:80px 0 120px; background:#15130f; }
+    .figures-head { display:flex; justify-content:space-between; align-items:end; gap:20px; margin-bottom:38px; }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .figure-card {
+      min-height:450px; position:relative; overflow:hidden; isolation:isolate;
+      border:1px solid var(--line); background:#211d16;
+      transition:transform .4s, border-color .3s;
+    }
+    .figure-card:hover { transform:translateY(-8px); border-color:var(--gold); }
+    .figure-card img {
+      position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2;
+      filter:sepia(.28) saturate(.75); transition:transform .8s;
+    }
+    .figure-card:hover img { transform:scale(1.06); }
+    .figure-card::after {
+      content:""; position:absolute; inset:0; z-index:-1;
+      background:linear-gradient(0deg, #100f0c 3%, rgba(16,15,12,.86) 30%, transparent 85%);
+    }
+    .card-number { position:absolute; top:20px; right:20px; color:var(--gold-light); font:1rem var(--serif); }
+    .card-content { position:absolute; right:25px; left:25px; bottom:25px; }
+    .card-role { color:var(--gold); font-size:.78rem; }
+    .card-content h3 { font:700 2.5rem var(--serif); margin:5px 0; }
+    .card-content p { color:#d1c7b4; line-height:1.8; font-size:.91rem; }
+    .text-link { display:inline-flex; gap:9px; align-items:center; margin-top:8px; color:var(--gold-light); }
+    .text-link:hover { gap:15px; }
+
+    /* صفحات التفاصيل */
+    .detail {
+      display:none; min-height:100vh; padding:125px 0 80px;
+      animation:enter .65s ease both;
+    }
+    .detail.active { display:block; }
+    @keyframes enter { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
+    .back-button {
+      border:1px solid var(--line); background:transparent; color:var(--ivory);
+      padding:10px 16px; cursor:pointer; margin-bottom:35px;
+    }
+    .back-button:hover { border-color:var(--gold); color:var(--gold-light); }
+    .detail-hero { display:grid; grid-template-columns:1fr .8fr; gap:55px; align-items:center; }
+    .detail-hero h2 { font:700 clamp(3rem,8vw,6rem)/1.1 var(--serif); margin:12px 0; }
+    .detail-hero p { color:#c9c0af; line-height:2.1; }
+    .detail-image {
+      width:100%; height:440px; object-fit:cover; border:1px solid var(--line);
+      filter:sepia(.22);
+    }
+    .facts { display:flex; flex-wrap:wrap; gap:10px; margin:25px 0; }
+    .fact { padding:9px 13px; border:1px solid var(--line); color:var(--gold-light); font-size:.85rem; }
+    .detail-columns { display:grid; grid-template-columns:1fr 1fr; gap:45px; margin-top:75px; }
+    .detail-columns h3 { font:700 1.8rem var(--serif); color:var(--gold-light); }
+    .detail-columns p,.detail-columns li { color:var(--muted); line-height:2; }
+    .detail-columns ul { padding-right:20px; }
+    .gallery { margin-top:70px; }
+    .gallery-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:20px; }
+    .gallery-item { position:relative; height:230px; overflow:hidden; cursor:zoom-in; border:1px solid var(--line); }
+    .gallery-item img { width:100%; height:100%; object-fit:cover; transition:transform .5s; }
+    .gallery-item:hover img { transform:scale(1.06); }
+    .gallery-item span {
+      position:absolute; right:10px; bottom:10px; background:rgba(0,0,0,.72);
+      font-size:.75rem; padding:5px 9px; color:#eee;
+    }
+    .notice { font-size:.78rem; color:#b9ad98; margin-top:12px; }
+
+    /* الإرث والتذييل */
+    .legacy { text-align:center; padding:115px 0; background:
+      radial-gradient(ellipse at center, rgba(201,164,92,.14), transparent 60%), #11100d; }
+    .legacy h2 { font:700 clamp(2.6rem,7vw,5rem) var(--serif); margin:12px 0; }
+    .legacy p { color:var(--muted); line-height:2; max-width:650px; margin:15px auto; }
+    footer { border-top:1px solid var(--line); padding:25px 0; color:#958b79; font-size:.8rem; }
+    .footer-inner { display:flex; justify-content:space-between; gap:15px; flex-wrap:wrap; }
+
+    /* عارض الصور */
+    .lightbox {
+      display:none; position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.94);
+      align-items:center; justify-content:center; padding:25px;
+    }
+    .lightbox.open { display:flex; }
+    .lightbox img { max-width:min(100%,1100px); max-height:85vh; object-fit:contain; }
+    .lightbox button {
+      position:absolute; top:20px; left:24px; color:white; font-size:2rem;
+      background:transparent; border:0; cursor:pointer;
+    }
+    .reveal { opacity:0; transform:translateY(22px); transition:opacity .7s, transform .7s; }
+    .reveal.visible { opacity:1; transform:none; }
+
+    @media(max-width:800px) {
+      .nav-links {
+        display:none; position:absolute; top:65px; right:21px; left:21px;
+        background:#17150f; border:1px solid var(--line); padding:18px;
+        flex-direction:column; align-items:stretch; gap:16px;
+      }
+      .nav-links.open { display:flex; }
+      .menu-toggle { display:block; }
+      .hero { background-position:58% center; }
+      .ornament { left:-12%; top:16%; width:55vw; }
+      .intro-grid,.detail-hero { grid-template-columns:1fr; gap:30px; }
+      .cards { grid-template-columns:1fr; }
+      .figure-card { min-height:420px; }
+      .figures-head { display:block; }
+      .detail-image { height:330px; }
+    }
+    @media(max-width:560px) {
+      .container { width:min(100% - 30px,1160px); }
+      .hero-content { padding-top:55px; }
+      .hero h1 { font-size:3.6rem; }
+      .intro,.figures { padding:75px 0; }
+      .quote-card { padding:28px 22px; }
+      .detail { padding-top:105px; }
+      .detail-columns { grid-template-columns:1fr; gap:15px; margin-top:45px; }
+      .gallery-grid { grid-template-columns:1fr 1fr; gap:9px; }
+      .gallery-item { height:155px; }
+    }
+    @media(prefers-reduced-motion:reduce) {
+      *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; transition-duration:.01ms!important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#home" data-home>متحف الأدب العربي</a>
+      <button class="menu-toggle" id="menuToggle" aria-label="فتح القائمة">القائمة ☰</button>
+      <nav class="nav-links" id="navLinks" aria-label="التنقل الرئيسي">
+        <a href="#home" data-home>الرئيسية</a>
+        <a href="#figures" data-home>الأعلام</a>
+        <a href="#legacy" data-home>الإرث</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="mainPage">
+    <section class="hero" id="home">
+      <div class="ornament"></div>
+      <div class="container hero-content">
+        <span class="eyebrow">رحلة في ذاكرة الحرف العربي</span>
+        <h1>عمالقة<br><span class="gold">الأدب العربي</span></h1>
+        <div class="hero-subtitle">ابن المقفع · الجاحظ · أبو نواس</div>
+        <p>ثلاثة أصوات صنعت ملامح عصرٍ ذهبي؛ بين حكمة الحكاية، ودهشة المعرفة، وجرأة القصيدة. ادخل إلى عالمهم عبر متحف رقمي يحتفي بالكلمة وأثرها.</p>
+        <div class="hero-actions">
+          <a class="button" href="#figures">ابدأ الرحلة <span>←</span></a>
+          <a class="button ghost" href="#intro">اكتشف الحكاية</a>
+        </div>
+        <div class="hero-note">تجربة أدبية رقمية — صور فنية تخيّلية وليست بورتريهات تاريخية موثقة</div>
+      </div>
+    </section>
+
+    <section class="intro" id="intro">
+      <div class="container intro-grid">
+        <div class="intro-copy reveal">
+          <span class="eyebrow">العصر العباسي</span>
+          <h2 class="section-title">حين كان الأدب<br>يصنع التاريخ</h2>
+          <p>في فضاءٍ اتسعت فيه حركة الترجمة والمناظرة والتأليف، ازدهرت العربية نثراً وشعراً. هنا نقترب من ثلاثة أعلام مختلفين: ابن المقفع الذي أسهم في ترسيخ النثر الفني، والجاحظ صاحب النظر الموسوعي، وأبو نواس الذي جدّد في طرائق القصيدة.</p>
+          <p>هذه الصفحات مدخل موجز إلى سيرهم وأعمالهم، مع التمييز بين ما هو معلوم تاريخياً وما هو تصوير فني معاصر.</p>
+        </div>
+        <aside class="quote-card reveal">
+          <p>ليس المقصود أن نعيد الماضي كما كان، بل أن نصغي إلى ما تركه من أسئلةٍ وكلمات.</p>
+          <small>من وحي المتحف</small>
+        </aside>
+      </div>
+    </section>
+
+    <section class="figures" id="figures">
+      <div class="container">
+        <div class="figures-head reveal">
+          <div><span class="eyebrow">ثلاثة عوالم أدبية</span><h2 class="section-title">وجوه من العصر الذهبي</h2></div>
+          <p class="section-intro">اختر اسماً لتفتح صفحة خاصة بسيرته وأعماله ومعرضه الفني.</p>
+        </div>
+        <div class="cards">
+          <article class="figure-card reveal">
+            <img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=1000&q=85" alt="كتب ومخطوطات في مكتبة، مشهد فني تخيّلي">
+            <span class="card-number">٠١</span>
+            <div class="card-content">
+              <span class="card-role">رائد من رواد النثر</span>
+              <h3>ابن المقفع</h3>
+              <p>كاتب ومترجم ارتبط اسمه بكتاب «كليلة ودمنة» وبالرسائل والنثر الفني.</p>
+              <a class="text-link" href="#ibn" data-detail="ibn">ادخل إلى عالمه <span>←</span></a>
+            </div>
+          </article>
+          <article class="figure-card reveal">
+            <img src="https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=1000&q=85" alt="مخطوطات وكتب قديمة، مشهد فني تخيّلي">
+            <span class="card-number">٠٢</span>
+            <div class="card-content">
+              <span class="card-role">الأديب الموسوعي</span>
+              <h3>الجاحظ</h3>
+              <p>أديب بصري واسع المعرفة، ترك مؤلفات بارزة في الأدب واللغة والحيوان.</p>
+              <a class="text-link" href="#jahiz" data-detail="jahiz">ادخل إلى عالمه <span>←</span></a>
+            </div>
+          </article>
+          <article class="figure-card reveal">
+            <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1000&q=85" alt="دفتر كتابة وقلم، مشهد فني تخيّلي">
+            <span class="card-number">٠٣</span>
+            <div class="card-content">
+              <span class="card-role">شاعر مجدّد</span>
+              <h3>أبو نواس</h3>
+              <p>شاعر عباسي بارز، عُرف بتنوع أغراضه وبحضوره المؤثر في تاريخ الشعر.</p>
+              <a class="text-link" href="#nuwas" data-detail="nuwas">ادخل إلى عالمه <span>←</span></a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="detail" id="ibn" aria-label="تفاصيل ابن المقفع">
+    <div class="container">
+      <button class="back-button" data-back>→ العودة إلى المتحف</button>
+      <div class="detail-hero">
+        <div>
+          <span class="eyebrow">النثر · الحكمة · الترجمة</span>
+          <h2>ابن المقفع</h2>
+          <div class="facts"><span class="fact">توفي نحو ١٣٩هـ / ٧٥٦م</span><span class="fact">من أصول فارسية</span><span class="fact">كاتب ومترجم</span></div>
+          <p>عبد الله بن المقفع، واسمه قبل إسلامه روزبه بن دادويه، كاتب ومترجم عاش في العصر العباسي المبكر. وُلد في بلاد فارس، ونشأ في بيئة ثقافية متعددة اللغات، ثم عمل في الكتابة والإدارة. تذكر المصادر أنه قُتل في البصرة نحو سنة ١٣٩هـ، مع اختلاف في تفاصيل الروايات.</p>
+        </div>
+        <img class="detail-image" src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=1200&q=85" alt="كتب ومخطوطات؛ تصور فني غير تاريخي لبيئة الكتابة">
+      </div>
+      <div class="detail-columns">
+        <div><h3>أثره في النثر</h3><p>أسهم ابن المقفع في تطوير النثر العربي بأسلوب واضح محكم، يجمع بين الحكمة وحسن الترتيب. وكان لنقله نصوصاً من التراث الفارسي أثر مهم في حركة الترجمة والتأليف.</p></div>
+        <div><h3>أعمال معروفة</h3><ul><li>«كليلة ودمنة» بصيغته العربية، وهو كتاب حِكمي ذو حكايات على ألسنة الحيوان.</li><li>«الأدب الكبير» و«الأدب الصغير» المنسوبان إليه.</li><li>رسائل أدبية وسياسية، مع اختلاف نسبة بعض النصوص في التراث.</li></ul></div>
+      </div>
+      <div class="gallery">
+        <h3 class="section-title">معرض المخطوطات والكتابة</h3>
+        <div class="gallery-grid">
+          <div class="gallery-item"><img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=900&q=80" alt="رفوف كتب، تصوير فني"><span>مكتبة متخيّلة</span></div>
+          <div class="gallery-item"><img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=80" alt="أدوات كتابة، تصوير فني"><span>أدوات الكاتب</span></div>
+          <div class="gallery-item"><img src="https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=900&q=80" alt="كتب قديمة، تصوير فني"><span>رفوف الكتب</span></div>
+        </div>
+        <p class="notice">الصور المعروضة مشاهد فنية معاصرة، ولا تمثل ابن المقفع أو مخطوطاته الأصلية.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="detail" id="jahiz" aria-label="تفاصيل الجاحظ">
+    <div class="container">
+      <button class="back-button" data-back>→ العودة إلى المتحف</button>
+      <div class="detail-hero">
+        <div>
+          <span class="eyebrow">الأدب · اللغة · الملاحظة</span>
+          <h2>الجاحظ</h2>
+          <div class="facts"><span class="fact">نحو ١٥٩–٢٥٥هـ</span><span class="fact">نحو ٧٧٦–٨٦٨م</span><span class="fact">البصرة</span></div>
+          <p>أبو عثمان عمرو بن بحر الجاحظ أديب ومفكر من البصرة. عاش في العصر العباسي، واتصل بحلقات العلم واللغة والكلام، وترك مؤلفات واسعة الموضوعات. وتختلف المصادر في بعض تفاصيل حياته وتواريخها، لكن شهرته الأدبية ومكانته في تاريخ النثر العربي راسختان.</p>
+        </div>
+        <img class="detail-image" src="https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=1200&q=85" alt="كتب ومخطوطات؛ تصور فني غير تاريخي لمشهد ثقافي">
+      </div>
+      <div class="detail-columns">
+        <div><h3>مسيرته وأسلوبه</h3><p>تميّز الجاحظ بسعة الاطلاع، وروح الملاحظة، وتداخل الخبر والطرفة والحجة في كتابته. يلتفت إلى طبائع الناس والحيوان والمجتمع، ويستخدم الاستطراد والحوار لتوسيع الفكرة وإمتاع القارئ.</p></div>
+        <div><h3>من أشهر كتبه</h3><ul><li>«كتاب الحيوان» — بحث أدبي ومعرفي يتجاوز وصف الحيوان.</li><li>«البخلاء» — تصوير اجتماعي ساخر لشخصيات ومواقف.</li><li>«البيان والتبيين» — من أهم الكتب في البلاغة والبيان والأدب.</li></ul></div>
+      </div>
+      <div class="gallery">
+        <h3 class="section-title">مجالس المعرفة والكتاب</h3>
+        <div class="gallery-grid">
+          <div class="gallery-item"><img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=900&q=80" alt="مكتبة، مشهد فني"><span>مكتبة متخيّلة</span></div>
+          <div class="gallery-item"><img src="https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=900&q=80" alt="كتب ومجلدات"><span>عالم الكتب</span></div>
+          <div class="gallery-item"><img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=900&q=80" alt="رفوف مكتبة"><span>رفوف المعرفة</span></div>
+        </div>
+        <p class="notice">الصور تخيّلية ومعاصرة، وليست صوراً تاريخية للجاحظ أو لمكتبته.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="detail" id="nuwas" aria-label="تفاصيل أبي نواس">
+    <div class="container">
+      <button class="back-button" data-back>→ العودة إلى المتحف</button>
+      <div class="detail-hero">
+        <div>
+          <span class="eyebrow">الشعر · التجديد · بغداد</span>
+          <h2>أبو نواس</h2>
+          <div class="facts"><span class="fact">نحو ١٤٥–١٩٨هـ</span><span class="fact">نحو ٧٦٢–٨١٣م</span><span class="fact">شاعر عباسي</span></div>
+          <p>أبو نواس هو الحسن بن هانئ، شاعر من أبرز شعراء العصر العباسي. نشأ في بيئة متصلة بالثقافة العربية والفارسية، وارتبط اسمه ببغداد وبمجالسها الأدبية. ترك شعراً متنوع الأغراض، وأسهم في تجديد موضوعات القصيدة وصورها.</p>
+        </div>
+        <img class="detail-image" src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=85" alt="دفتر كتابة؛ تصوير فني لمشهد شعري">
+      </div>
+      <div class="detail-columns">
+        <div><h3>مكانته وخصائص شعره</h3><p>اشتهر أبو نواس بالخمريات، كما كتب في المدح والهجاء والزهد والطرديات وغيرها. تتسم قصائده بالجرأة في تناول الموضوع، وسلاسة العبارة، والصورة الحية، وقد خالف أحياناً تقاليد الوقوف على الأطلال ومقدمات القصيدة القديمة.</p></div>
+        <div><h3>الديوان والرواية</h3><p>يُعرف شعره من خلال ديوان جمعه الرواة والباحثون، وتختلف الروايات في نسبة بعض القصائد والأبيات. لذلك لا نورد هنا أبياتاً منسوبة إليه دون توثيق نصي محدد، ونكتفي بالإشارة إلى أغراض شعره ومكانته الأدبية.</p><ul><li>الخمريات ووصف مجالسها.</li><li>المديح والهجاء.</li><li>الزهد والتوبة في جانب من شعره.</li><li>الطرديات ووصف الصيد.</li></ul></div>
+      </div>
+      <div class="gallery">
+        <h3 class="section-title">مشاهد من عالم الشعر</h3>
+        <div class="gallery-grid">
+          <div class="gallery-item"><img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=80" alt="دفتر وأدوات كتابة"><span>دفتر الشاعر</span></div>
+          <div class="gallery-item"><img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=900&q=80" alt="مكتبة مضاءة"><span>مجلس متخيّل</span></div>
+          <div class="gallery-item"><img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=900&q=80" alt="كتب ومجلدات"><span>ذاكرة القصيدة</span></div>
+        </div>
+        <p class="notice">هذه صور فنية معاصرة، وليست صوراً حقيقية لأبي نواس أو لمجلس تاريخي بعينه.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="legacy" id="legacy">
+    <div class="container reveal">
+      <span class="eyebrow">من ذاكرة الأدب</span>
+      <h2>إرث لا يمحوه الزمن</h2>
+      <p>تتباين طرقهم، لكن أثرهم يلتقي في مكان واحد: الكلمة التي تفتح باباً للفكر، وتحفظ ملامح عصرها، وتصل الماضي بأسئلة الحاضر.</p>
+      <a class="button" href="#figures">عد إلى الأعلام <span>↑</span></a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>متحف الأدب العربي — تجربة ثقافية رقمية</span>
+      <span>المحتوى تعريفي، والصور الفنية غير تاريخية.</span>
+    </div>
+  </footer>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="تكبير الصورة">
+    <button id="lightboxClose" aria-label="إغلاق">×</button>
+    <img src="" alt="">
+  </div>
+
+  <script>
+    const mainPage = document.getElementById("mainPage");
+    const detailPages = [...document.querySelectorAll(".detail")];
+    const nav = document.getElementById("nav");
+    const menuToggle = document.getElementById("menuToggle");
+    const navLinks = document.getElementById("navLinks");
+
+    function showHome(hash = "#home") {
+      detailPages.forEach(page => page.classList.remove("active"));
+      mainPage.hidden = false;
+      navLinks.classList.remove("open");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (hash && hash !== "#home") {
+        setTimeout(() => document.querySelector(hash)?.scrollIntoView({ behavior: "smooth" }), 120);
+      }
+    }
+
+    function showDetail(id) {
+      const page = document.getElementById(id);
+      if (!page) return;
+      mainPage.hidden = true;
+      detailPages.forEach(item => item.classList.toggle("active", item === page));
+      navLinks.classList.remove("open");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      history.replaceState(null, "", "#" + id);
+    }
+
+    document.querySelectorAll("[data-detail]").forEach(link => {
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        showDetail(link.dataset.detail);
+      });
+    });
+
+    document.querySelectorAll("[data-back], [data-home]").forEach(link => {
+      link.addEventListener("click", event => {
+        const href = link.getAttribute("href") || "#home";
+        if (link.hasAttribute("data-home") && href !== "#home") return;
+        event.preventDefault();
+        history.replaceState(null, "", href);
+        showHome(href);
+      });
+    });
+
+    menuToggle.addEventListener("click", () => navLinks.classList.toggle("open"));
+    window.addEventListener("scroll", () => nav.classList.toggle("scrolled", window.scrollY > 30));
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: .12 });
+    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = lightbox.querySelector("img");
+    document.querySelectorAll(".gallery-item img").forEach(img => {
+      img.addEventListener("click", () => {
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        lightbox.classList.add("open");
+      });
+    });
+    function closeLightbox() { lightbox.classList.remove("open"); }
+    document.getElementById("lightboxClose").addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
+
+    // دعم فتح رابط شخصية مباشرة
+    const initialId = location.hash.slice(1);
+    if (["ibn", "jahiz", "nuwas"].includes(initialId)) showDetail(initialId);
+  </script>
+</body>
+</html>
 
